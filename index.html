@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>APEX.trade</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --navy:#0a0f1e;--panel:#111827;--card:#1a2235;--border:#1e2d45;
+      --teal:#00d4b4;--teal2:#00a896;--red:#ef4444;
+      --green:#22c55e;--muted:#4b6080;--text:#e2e8f0;--sub:#94a3b8;
+      --mono:'JetBrains Mono',monospace;--sans:'Inter',sans-serif;
+    }
+    body{background:var(--navy);color:var(--text);font-family:var(--sans);min-height:100vh}
+    .app{max-width:1000px;margin:0 auto;padding:20px 14px 60px}
+    .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
+    .logo{font-family:var(--mono);font-size:20px;color:var(--teal)}
+    .logo span{color:var(--sub);font-weight:400}
+    .live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);margin-right:6px;animation:blink 1.4s infinite}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+    .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px}
+    @media(max-width:600px){.grid2,.grid3{grid-template-columns:1fr}}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px}
+    .card-label{font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin-bottom:6px}
+    .card-value{font-family:var(--mono);font-size:26px;font-weight:600}
+    .card-sub{font-size:12px;color:var(--sub);margin-top:4px}
+    .wallet{background:linear-gradient(135deg,#0d2137,#0a1628);border:1px solid var(--teal2);border-radius:14px;padding:22px;margin-bottom:16px}
+    .wallet-balance{font-family:var(--mono);font-size:38px;font-weight:600;color:var(--teal)}
+    .wallet-label{font-size:11px;color:var(--teal);text-transform:uppercase;letter-spacing:1.1px;margin-bottom:4px}
+    .wallet-sub{font-size:12px;color:var(--sub);margin-top:6px}
+    .wallet-actions{display:flex;align-items:center;gap:12px;margin-top:16px;flex-wrap:wrap}
+    .btn{padding:10px 20px;border-radius:8px;border:none;cursor:pointer;font-family:var(--sans);font-size:14px;font-weight:600;transition:all .15s}
+    .btn-primary{background:var(--teal);color:#000}
+    .btn-primary:hover{background:var(--teal2)}
+    .btn-ghost{background:rgba(255,255,255,.07);color:var(--text);border:1px solid var(--border)}
+    .btn-ghost:hover{background:rgba(255,255,255,.12)}
+    .btn-sm{padding:6px 14px;font-size:12px;border-radius:6px}
+    .toggle-wrap{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--sub);margin-left:auto}
+    .toggle{position:relative;width:38px;height:22px;flex-shrink:0}
+    .toggle input{opacity:0;width:0;height:0;position:absolute}
+    .tslider{position:absolute;inset:0;border-radius:22px;background:var(--border);cursor:pointer;transition:.2s}
+    .toggle input:checked+.tslider{background:var(--teal)}
+    .tslider::before{content:'';position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:3px;left:3px;transition:.2s}
+    .toggle input:checked+.tslider::before{transform:translateX(16px)}
+    .section-title{font-size:12px;font-weight:600;color:var(--sub);text-transform:uppercase;letter-spacing:1.1px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+    .ai-tag{font-size:9px;background:rgba(0,212,180,.12);color:var(--teal);padding:2px 7px;border-radius:4px}
+    .stock-row{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+    .stock-row:last-child{border-bottom:none}
+    .ticker{font-family:var(--mono);font-weight:600;font-size:13px;width:50px}
+    .sname{font-size:12px;color:var(--sub);flex:1;padding:0 8px}
+    .sprice{font-family:var(--mono);font-size:13px;text-align:right}
+    .schange{font-family:var(--mono);font-size:11px;min-width:58px;text-align:right}
+    .up{color:var(--green)}.down{color:var(--red)}
+    .news-item{padding:10px 0;border-bottom:1px solid var(--border)}
+    .news-item:last-child{border-bottom:none}
+    .nsource{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--teal);margin-bottom:2px}
+    .ntitle{font-size:12px;line-height:1.4}
+    .nmeta{font-size:11px;color:var(--muted);margin-top:2px}
+    .nbadge{font-size:10px;padding:1px 6px;border-radius:4px;margin-left:6px}
+    .pos{background:rgba(34,197,94,.12);color:var(--green)}
+    .neg{background:rgba(239,68,68,.12);color:var(--red)}
+    .neu{background:rgba(148,163,184,.1);color:var(--sub)}
+    .trade-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);font-size:12px}
+    .trade-row:last-child{border-bottom:none}
+    .tbadge{font-family:var(--mono);font-size:10px;padding:2px 7px;border-radius:4px;font-weight:600;background:rgba(34,197,94,.15);color:var(--green)}
+    .tticker{font-family:var(--mono);font-weight:600;width:40px}
+    .tdetail{color:var(--sub);flex:1}
+    .ttime{font-size:10px;color:var(--muted);min-width:56px;text-align:right}
+    .pulse-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 0}
+    .pulse-ring{position:relative;width:100px;height:100px;display:flex;align-items:center;justify-content:center}
+    .pulse-ring::before,.pulse-ring::after{content:'';position:absolute;border-radius:50%;border:1.5px solid var(--teal);opacity:0;animation:pout 2.4s ease-out infinite}
+    .pulse-ring::after{animation-delay:1.2s}
+    @keyframes pout{0%{width:64px;height:64px;opacity:.5}100%{width:100px;height:100px;opacity:0}}
+    .conf-circle{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:1}
+    .conf-inner{width:50px;height:50px;border-radius:50%;background:var(--card);display:flex;align-items:center;justify-content:center;flex-direction:column}
+    .conf-pct{font-family:var(--mono);font-size:14px;font-weight:600;color:var(--teal)}
+    .conf-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
+    .mini-chart{display:flex;align-items:flex-end;gap:3px;height:44px;margin-top:14px}
+    .bar{flex:1;border-radius:3px 3px 0 0;min-width:4px;transition:height .3s}
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(4px)}
+    .modal{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:26px;width:320px}
+    .modal h3{font-size:17px;margin-bottom:16px}
+    .minput{width:100%;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:11px 13px;color:var(--text);font-family:var(--mono);font-size:16px;outline:none;margin-bottom:12px}
+    .minput:focus{border-color:var(--teal)}
+    .quick-btns{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+    .modal-actions{display:flex;gap:10px}
+    .spinner{display:inline-block;width:11px;height:11px;border:2px solid var(--border);border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite;margin-right:6px;vertical-align:middle}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .toast{position:fixed;bottom:22px;right:20px;background:var(--card);border:1px solid var(--teal);border-radius:10px;padding:11px 16px;font-size:13px;color:var(--teal);z-index:200;animation:sin .25s ease}
+    @keyframes sin{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+    .disclaimer{margin-top:18px;font-size:11px;color:var(--muted);line-height:1.6;text-align:center}
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="logo">APEX<span>.trade</span></div>
+    <div style="font-size:12px;color:var(--sub);display:flex;align-items:center">
+      <span class="live-dot"></span>NYSE · NASDAQ live
+    </div>
+  </div>
+
+  <div class="wallet">
+    <div class="wallet-label">Dein Guthaben</div>
+    <div class="wallet-balance" id="balance">€ 1.000,00</div>
+    <div class="wallet-sub">
+      Investiert: <span id="invested" style="font-family:var(--mono)">€ 0,00</span>
+      &nbsp;·&nbsp;
+      Gewinn/Verlust: <span id="profit" style="font-family:var(--mono);color:var(--green)">+€ 0,00</span>
+    </div>
+    <div class="wallet-actions">
+      <button class="btn btn-primary" onclick="openDeposit()">+ Einzahlen</button>
+      <div class="toggle-wrap">
+        <label class="toggle">
+          <input type="checkbox" id="autoToggle" onchange="toggleAuto(this.checked)"/>
+          <span class="tslider"></span>
+        </label>
+        Auto-Invest <span id="autoLabel" style="color:var(--sub)">aus</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid3">
+    <div class="card">
+      <div class="card-label">Trades ausgeführt</div>
+      <div class="card-value" id="tradeCount">0</div>
+      <div class="card-sub">Auto-Positionen</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Ø Rendite/Trade</div>
+      <div class="card-value" id="avgReturn" style="color:var(--green)">0,00 €</div>
+      <div class="card-sub">nach KI-Selektion</div>
+    </div>
+    <div class="card">
+      <div class="section-title" style="margin-bottom:8px">KI-Konfidenz <span class="ai-tag">AI</span></div>
+      <div class="pulse-wrap">
+        <div class="pulse-ring">
+          <div class="conf-circle" id="confCircle" style="background:conic-gradient(var(--teal) 71%, var(--border) 0)">
+            <div class="conf-inner">
+              <span class="conf-pct" id="confPct">71%</span>
+              <span class="conf-lbl">Score</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="section-title">Live-Kurse</div>
+      <div id="stockList"></div>
+    </div>
+    <div class="card">
+      <div class="section-title">Live-Nachrichten <span class="ai-tag">Impact</span></div>
+      <div id="newsList"></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:16px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div class="section-title" style="margin-bottom:0">KI-Marktanalyse <span class="ai-tag">AI</span></div>
+      <button class="btn btn-ghost btn-sm" onclick="runAnalysis()" id="analyzeBtn">Jetzt analysieren</button>
+    </div>
+    <div id="analysisBox" style="font-size:13px;color:var(--muted)">
+      Drücke „Jetzt analysieren" – die KI bewertet Kurse und Nachrichten und gibt eine Empfehlung.
+    </div>
+    <div class="mini-chart" id="miniChart"></div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Auto-Trade Log</div>
+    <div id="tradeLog"><div style="font-size:13px;color:var(--muted)">Noch keine Trades. Aktiviere Auto-Invest oben.</div></div>
+  </div>
+
+  <div class="disclaimer">⚠️ Diese App ist eine Simulation zu Bildungszwecken. Keine echten Trades. Kein Finanzberatungsersatz.</div>
+</div>
+
+<div class="overlay" id="depositModal" style="display:none">
+  <div class="modal">
+    <h3>💶 Geld einzahlen</h3>
+    <input class="minput" type="number" id="depositInput" placeholder="Betrag in €" onkeydown="if(event.key==='Enter')doDeposit()"/>
+    <div class="quick-btns">
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('depositInput').value=50">50 €</button>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('depositInput').value=100">100 €</button>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('depositInput').value=250">250 €</button>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('depositInput').value=500">500 €</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" style="flex:1" onclick="doDeposit()">Einzahlen</button>
+      <button class="btn btn-ghost" onclick="closeDeposit()">Abbrechen</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" style="display:none"></div>
+
+<script>
+let balance=1000,invested=0,totalProfit=0,trades=[],autoMode=false,autoTimer=null,confidence=71;
+let barData=[40,55,38,70,62,80,74,88,65,72,90,85];
+
+const STOCKS=[
+  {t:"AAPL",n:"Apple Inc.",p:189.42,c:1.34},
+  {t:"NVDA",n:"NVIDIA Corp.",p:874.61,c:3.87},
+  {t:"MSFT",n:"Microsoft Corp.",p:415.20,c:-0.62},
+  {t:"TSLA",n:"Tesla Inc.",p:248.13,c:-2.11},
+  {t:"AMZN",n:"Amazon.com",p:183.75,c:0.91},
+  {t:"META",n:"Meta Platforms",p:507.38,c:1.55},
+  {t:"GOOGL",n:"Alphabet Inc.",p:174.92,c:-0.38},
+  {t:"JPM",n:"JPMorgan Chase",p:196.44,c:0.77},
+];
+
+const NEWS=[
+  {src:"Reuters",title:"Fed signals rate cut possible in 2026 amid cooling inflation",imp:"pos",age:"4m"},
+  {src:"Bloomberg",title:"NVIDIA beats Q2 earnings by 18% – AI chip demand surges",imp:"pos",age:"12m"},
+  {src:"WSJ",title:"Apple faces EU antitrust fine over App Store payment rules",imp:"neg",age:"23m"},
+  {src:"CNBC",title:"Tesla misses delivery targets – shares slip pre-market",imp:"neg",age:"38m"},
+  {src:"FT",title:"Global PMI data suggests manufacturing stabilization in Europe",imp:"neu",age:"51m"},
+  {src:"AP",title:"Amazon Web Services announces next-gen AI inference chips",imp:"pos",age:"1h"},
+];
+
+function fmt(n){return n.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function showToast(msg){const t=document.getElementById("toast");t.textContent=msg;t.style.display="block";setTimeout(()=>t.style.display="none",3000)}
+
+function renderWallet(){
+  document.getElementById("balance").textContent="€ "+fmt(balance);
+  document.getElementById("invested").textContent="€ "+fmt(invested);
+  const p=document.getElementById("profit");
+  p.textContent=(totalProfit>=0?"+":"")+fmt(totalProfit)+" €";
+  p.style.color=totalProfit>=0?"var(--green)":"var(--red)";
+}
+
+function renderStocks(){
+  document.getElementById("stockList").innerHTML=STOCKS.map(s=>`
+    <div class="stock-row">
+      <div class="ticker">${s.t}</div>
+      <div class="sname">${s.n}</div>
+      <div>
+        <div class="sprice">$${fmt(s.p)}</div>
+        <div class="schange ${s.c>=0?'up':'down'}">${s.c>=0?"+":""}${s.c.toFixed(2)}</div>
+      </div>
+    </div>`).join("");
+}
+
+function renderNews(){
+  document.getElementById("newsList").innerHTML=NEWS.map(n=>`
+    <div class="news-item">
+      <div class="nsource">${n.src}<span class="nbadge ${n.imp}">${n.imp==="pos"?"↑ bullish":n.imp==="neg"?"↓ bearish":"→ neutral"}</span></div>
+      <div class="ntitle">${n.title}</div>
+      <div class="nmeta">vor ${n.age}</div>
+    </div>`).join("");
+}
+
+function renderTrades(){
+  const buys=trades.filter(t=>t.type==="BUY");
+  document.getElementById("tradeCount").textContent=buys.length;
+  const avg=buys.length?totalProfit/buys.length:0;
+  const ar=document.getElementById("avgReturn");
+  ar.textContent=(avg>=0?"+":"")+fmt(avg)+" €";
+  ar.style.color=avg>=0?"var(--green)":"var(--red)";
+  const el=document.getElementById("tradeLog");
+  if(!trades.length){el.innerHTML='<div style="font-size:13px;color:var(--muted)">Noch keine Trades. Aktiviere Auto-Invest oben.</div>';return;}
+  el.innerHTML=trades.map(t=>`
+    <div class="trade-row">
+      <span class="tbadge">${t.type}</span>
+      <span class="tticker">${t.ticker}</span>
+      <span class="tdetail">${fmt(t.amount)} € · ${t.shares} Anteile · ${t.conf}%</span>
+      <span style="font-family:var(--mono);font-size:11px;margin-left:auto;color:${t.pnl>=0?'var(--green)':'var(--red)'}">${t.pnl>=0?"+":""}${fmt(t.pnl)} €</span>
+      <span class="ttime">${t.time}</span>
+    </div>`).join("");
+}
+
+function renderChart(){
+  document.getElementById("miniChart").innerHTML=barData.map(h=>`
+    <div class="bar" style="height:${h}%;background:${h>70?'var(--teal)':h>50?'var(--teal2)':'var(--border)'}"></div>`).join("");
+}
+
+function renderConfidence(){
+  const pct=Math.round(confidence);
+  document.getElementById("confPct").textContent=pct+"%";
+  document.getElementById("confCircle").style.background=`conic-gradient(var(--teal) ${pct}%, var(--border) 0)`;
+}
+
+setInterval(()=>{
+  STOCKS.forEach(s=>{const base=s.p-s.c;s.p=+(s.p*(1+(Math.random()-0.49)*0.004)).toFixed(2);s.c=+(s.p-base).toFixed(2)});
+  barData=[...barData.slice(1),+(40+Math.random()*55).toFixed(0)];
+  confidence=Math.min(97,Math.max(40,confidence+(Math.random()-0.47)*3));
+  renderStocks();renderChart();renderConfidence();
+},2200);
+
+function toggleAuto(on){
+  autoMode=on;
+  document.getElementById("autoLabel").textContent=on?"aktiv":"aus";
+  document.getElementById("autoLabel").style.color=on?"var(--teal)":"var(--sub)";
+  if(on){
+    autoTimer=setInterval(()=>{
+      if(!autoMode||balance<5)return;
+      const s=STOCKS[Math.floor(Math.random()*STOCKS.length)];
+      const amount=+(balance*(0.02+Math.random()*0.03)).toFixed(2);
+      const shares=+(amount/s.p).toFixed(4);
+      const conf=+(55+Math.random()*40).toFixed(0);
+      const pnl=+(amount*(Math.random()*0.04-0.01)).toFixed(2);
+      trades.unshift({type:"BUY",ticker:s.t,amount,shares,conf,pnl,time:new Date().toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit",second:"2-digit"})});
+      if(trades.length>20)trades.pop();
+      balance=+(balance-amount+pnl).toFixed(2);
+      invested=+(invested+amount).toFixed(2);
+      totalProfit=+(totalProfit+pnl).toFixed(2);
+      renderWallet();renderTrades();
+      showToast("Auto-Trade: "+fmt(amount)+" € in "+s.t);
+    },7000);
+  } else clearInterval(autoTimer);
+}
+
+function openDeposit(){document.getElementById("depositModal").style.display="flex";setTimeout(()=>document.getElementById("depositInput").focus(),100)}
+function closeDeposit(){document.getElementById("depositModal").style.display="none";document.getElementById("depositInput").value=""}
+function doDeposit(){
+  const v=parseFloat(document.getElementById("depositInput").value.replace(",","."));
+  if(isNaN(v)||v<=0)return;
+  balance=+(balance+v).toFixed(2);
+  renderWallet();closeDeposit();
+  showToast(fmt(v)+" € aufgeladen ✓");
+}
+
+async function runAnalysis(){
+  const btn=document.getElementById("analyzeBtn");
+  const box=document.getElementById("analysisBox");
+  btn.innerHTML='<span class="spinner"></span>Analysiert…';btn.disabled=true;
+  box.style.color="var(--muted)";box.textContent="KI analysiert Marktdaten…";
+  const best=[...STOCKS].sort((a,b)=>b.c-a.c)[0];
+  const worst=[...STOCKS].sort((a,b)=>a.c-b.c)[0];
+  const prompt=`Du bist ein KI-Finanzanalyst. Analysiere kurz auf Deutsch (max 3 Sätze):
+Beste Aktie: ${best.t} +${best.c} USD. Schwächste: ${worst.t} ${worst.c} USD.
+Nachrichten: ${NEWS.map(n=>n.title).join(" | ")}
+Empfehlung für Kleinanleger mit ${Math.round(balance)} € Budget.`;
+  try{
+    const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:prompt}]})});
+    const data=await res.json();
+    box.style.color="var(--text)";
+    box.textContent=data.content?.map(b=>b.text||"").join("")||"Keine Analyse verfügbar.";
+  }catch{box.textContent="KI-Analyse momentan nicht verfügbar."}
+  btn.innerHTML="Jetzt analysieren";btn.disabled=false;
+}
+
+renderWallet();renderStocks();renderNews();renderTrades();renderChart();renderConfidence();
+</script>
+</body>
+</html>
